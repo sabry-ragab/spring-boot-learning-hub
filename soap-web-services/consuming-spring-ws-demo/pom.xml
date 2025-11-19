@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.6</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example.soap</groupId>
+	<artifactId>consuming-spring-ws-demo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>consuming-spring-ws-demo</name>
+	<description>Demo project for Spring Boot</description>
+	<url />
+
+	<properties>
+		<java.version>21</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web-services</artifactId>
+			<exclusions>
+				<!-- Exclude embedded Tomcat, since the consumer
+             will act as a client, not as a server -->
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.springframework.ws</groupId>
+		    <artifactId>spring-ws-security</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+	
+		<plugins>
+	
+			
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		
+			<!-- 
+				JAX-WS Maven Plugin (wsimport):
+				- Generates Java classes (stubs, domain objects, and service classes)
+				  from a WSDL file.
+				- This allows us to consume SOAP web services in a type-safe way.
+			-->
+			<plugin>
+				<groupId>com.sun.xml.ws</groupId>
+				<artifactId>jaxws-maven-plugin</artifactId>
+				<version>3.0.0</version>
+		
+				<executions>
+					<execution>
+						<goals>
+							<!-- Runs wsimport to generate Java classes from the WSDL -->
+							<goal>wsimport</goal>
+						</goals>
+					</execution>
+				</executions>
+		
+				<configuration>
+					<!-- 
+						Package name for generated classes.
+						Uncomment <packageName> if you want all generated code under a specific package.
+						If omitted, the targetNamespace of the WSDL/XSD will define the package.
+					-->
+					<!--
+					<packageName>com.example.soap.consumingwebservice.wsdl</packageName>
+					-->
+		
+					<!-- 
+						WSDL URL of the SOAP service to consume. 
+						wsimport fetches this WSDL and generates code accordingly.
+					-->
+					<wsdlUrls>
+						<wsdlUrl>http://localhost:8080/ws/countries.wsdl</wsdlUrl>
+					</wsdlUrls>
+		
+					<!-- Directory for generated .java source files -->
+					<sourceDestDir>${project.build.directory}/generated-sources/wsimport</sourceDestDir>
+		
+					<!-- Directory for compiled .class files -->
+					<destDir>${project.build.directory}/classes</destDir>
+		
+					<!-- 
+						Enables vendor-specific extensions (required for many WSDLs).
+						Without this, code generation may fail for certain schemas.
+					-->
+					<extension>true</extension>
+				</configuration>
+			</plugin>
+		
+			<!-- 
+				Build Helper Maven Plugin:
+				- Adds additional source directories to the Maven build lifecycle.
+				- Here it ensures that generated sources from wsimport are compiled
+				  along with your main source code.
+			-->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/generated-sources/wsimport</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+	
+	</plugins>
+
+
+	</build>
+
+</project>
